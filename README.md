@@ -1,7 +1,7 @@
 LAPPS WebService: Lingpipe
 =============
 
-A LAPPS wrapper for the [Lingpipe](http://alias-i.com/lingpipe/) service.
+A LAPPS wrapper for the [Lingpipe](http://alias-i.com/lingpipe/) tool kit.
 
 
 
