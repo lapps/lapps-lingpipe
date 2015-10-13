@@ -20,7 +20,11 @@ package edu.cmu.lti.oaqa.lapps;
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunker;
 import com.aliasi.chunk.Chunking;
+import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
+import com.aliasi.tokenizer.Tokenizer;
+import com.aliasi.tokenizer.TokenizerFactory;
 import com.aliasi.util.Streams;
+import org.lappsgrid.api.ProcessingService;
 import org.lappsgrid.discriminator.Discriminators;
 import org.lappsgrid.metadata.IOSpecification;
 import org.lappsgrid.metadata.ServiceMetadata;
@@ -39,16 +43,15 @@ import java.util.Map;
 
 import static org.lappsgrid.discriminator.Discriminators.Uri;
 
-public class LingpipeNER extends AbstractLingpipeService {
-    private Chunker chunker;
+public class LingpipeTokenizer extends AbstractLingpipeService {
 
-    public LingpipeNER() throws IOException, ClassNotFoundException {
+    static final TokenizerFactory TOKENIZER_FACTORY
+            = IndoEuropeanTokenizerFactory.INSTANCE;
+
+    public LingpipeTokenizer(){
         super();
 
-        //load models file
-        loadChucker();
-
-         metadata.setDescription("Lingpipe Named Entity Recognizer with model \"English News: MUC-6\"");
+        metadata.setDescription("Lingpipe IndoEuropean Tokenizer");
 
         // JSON for input information
         IOSpecification requires = new IOSpecification();
@@ -58,23 +61,12 @@ public class LingpipeNER extends AbstractLingpipeService {
         // JSON for output information
         IOSpecification produces = new IOSpecification();
         produces.addFormat(Uri.LAPPS);          // LIF (form)
-        produces.addAnnotation(Uri.NE);         // Named Entity
+        produces.addAnnotation(Uri.TOKEN);         // Token
         requires.addLanguage("en");             // Target language
 
         // Embed I/O metadata JSON objects
         metadata.setRequires(requires);
         metadata.setProduces(produces);
-    }
-
-    protected void loadChucker() throws IOException, ClassNotFoundException {
-        URL url = getClass().getResource("/models/ne-en-news-muc6.AbstractCharLmRescoringChunker");
-        loadChucker(url);
-    }
-
-    protected void loadChucker(URL url) throws IOException, ClassNotFoundException {
-        ObjectInputStream ois = new ObjectInputStream(url.openStream());
-        chunker = (Chunker) ois.readObject();
-        Streams.closeQuietly(ois);
     }
 
     @Override
@@ -84,22 +76,22 @@ public class LingpipeNER extends AbstractLingpipeService {
 
         // Step #2: Check the discriminator
         final String discriminator = data.getDiscriminator();
-        if (discriminator.equals(Discriminators.Uri.ERROR)) {
+        if (discriminator.equals(Uri.ERROR)) {
             // Return the input unchanged.
             return input;
         }
 
         // Step #3: Extract the text.
         Container container = null;
-        if (discriminator.equals(Discriminators.Uri.TEXT)) {
+        if (discriminator.equals(Uri.TEXT)) {
             container = new Container();
             container.setText(data.getPayload().toString());
-        } else if (discriminator.equals(Discriminators.Uri.LAPPS)) {
+        } else if (discriminator.equals(Uri.LAPPS)) {
             container = new Container((Map) data.getPayload());
         } else {
             // This is a format we don't accept.
             String message = String.format("Unsupported discriminator type: %s", discriminator);
-            return new Data<String>(Discriminators.Uri.ERROR, message).asJson();
+            return new Data<String>(Uri.ERROR, message).asJson();
         }
 
         // Step #4: Create a new View
@@ -112,19 +104,19 @@ public class LingpipeNER extends AbstractLingpipeService {
             return input;
         }
 
-        Chunking chunking = chunker.chunk(text);
+        Tokenizer tokenizer = TOKENIZER_FACTORY.tokenizer(text.toCharArray(), 0, text.length());
+        String token = null;
         int i = 1;
-        for (Chunk chunk : chunking.chunkSet()) {
-            Annotation a = view.newAnnotation("lingpipe-chuck-" + i, Discriminators.Uri.NE, chunk.start(), chunk.end());
-            a.addFeature(Features.Token.WORD, text.substring(chunk.start(), chunk.end()));
-            a.addFeature(Features.Token.TYPE, chunk.type());
-            a.addFeature("score", String.valueOf(chunk.score()));
+        while ((token = tokenizer.nextToken()) != null) {
+            Annotation a = view.newAnnotation("lingpipe-token-" + i, Uri.TOKEN,
+                    tokenizer.lastTokenStartPosition(), tokenizer.lastTokenEndPosition());
+            a.addFeature(Features.Token.WORD, token);
         }
 
         // Step #6: Update the view's metadata. Each view contains metadata about the
         // annotations it contains, in particular the name of the tool that produced the
         // annotations.
-        view.addContains(Discriminators.Uri.NE, this.getClass().getName(), "ner:lingpipe-en-news-muc-6");
+        view.addContains(Uri.TOKEN, this.getClass().getName(), "tokenizer:lingpipe-indo-european-tokenizer");
 
         // Step #7: Create a DataContainer with the result.
         data = new DataContainer(container);

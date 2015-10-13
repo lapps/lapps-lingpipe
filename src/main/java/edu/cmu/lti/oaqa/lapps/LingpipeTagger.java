@@ -20,7 +20,16 @@ package edu.cmu.lti.oaqa.lapps;
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunker;
 import com.aliasi.chunk.Chunking;
+import com.aliasi.hmm.HiddenMarkovModel;
+import com.aliasi.hmm.HmmDecoder;
+import com.aliasi.sentences.IndoEuropeanSentenceModel;
+import com.aliasi.sentences.SentenceChunker;
+import com.aliasi.sentences.SentenceModel;
+import com.aliasi.tag.Tagging;
+import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
+import com.aliasi.tokenizer.TokenizerFactory;
 import com.aliasi.util.Streams;
+import org.lappsgrid.api.ProcessingService;
 import org.lappsgrid.discriminator.Discriminators;
 import org.lappsgrid.metadata.IOSpecification;
 import org.lappsgrid.metadata.ServiceMetadata;
@@ -35,30 +44,31 @@ import org.lappsgrid.vocabulary.Features;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.URL;
-import java.util.Map;
+import java.util.*;
 
 import static org.lappsgrid.discriminator.Discriminators.Uri;
 
-public class LingpipeNER extends AbstractLingpipeService {
-    private Chunker chunker;
+public class LingpipeTagger extends AbstractLingpipeService {
 
-    public LingpipeNER() throws IOException, ClassNotFoundException {
+    HmmDecoder decoder;
+
+    public LingpipeTagger() throws IOException, ClassNotFoundException {
         super();
 
-        //load models file
-        loadChucker();
+        //load the model
+        loadTagger();
 
-         metadata.setDescription("Lingpipe Named Entity Recognizer with model \"English News: MUC-6\"");
-
+        metadata.setDescription("Lingpipe Brown-HMM pos targger");
         // JSON for input information
         IOSpecification requires = new IOSpecification();
         requires.addFormats(Uri.TEXT, Uri.LAPPS);
         requires.addLanguage("en");             // Source language
+        requires.addAnnotation(Uri.TOKEN);
 
         // JSON for output information
         IOSpecification produces = new IOSpecification();
         produces.addFormat(Uri.LAPPS);          // LIF (form)
-        produces.addAnnotation(Uri.NE);         // Named Entity
+        produces.addAnnotation(Uri.POS);
         requires.addLanguage("en");             // Target language
 
         // Embed I/O metadata JSON objects
@@ -66,15 +76,16 @@ public class LingpipeNER extends AbstractLingpipeService {
         metadata.setProduces(produces);
     }
 
-    protected void loadChucker() throws IOException, ClassNotFoundException {
-        URL url = getClass().getResource("/models/ne-en-news-muc6.AbstractCharLmRescoringChunker");
-        loadChucker(url);
+    protected void loadTagger() throws IOException, ClassNotFoundException {
+        URL url = getClass().getResource("/models/pos-en-general-brown.HiddenMarkovModel");
+        loadTagger(url);
     }
 
-    protected void loadChucker(URL url) throws IOException, ClassNotFoundException {
+    protected void loadTagger(URL url) throws IOException, ClassNotFoundException {
         ObjectInputStream ois = new ObjectInputStream(url.openStream());
-        chunker = (Chunker) ois.readObject();
+        HiddenMarkovModel hmm = (HiddenMarkovModel) ois.readObject();
         Streams.closeQuietly(ois);
+        decoder = new HmmDecoder(hmm);
     }
 
     @Override
@@ -84,47 +95,61 @@ public class LingpipeNER extends AbstractLingpipeService {
 
         // Step #2: Check the discriminator
         final String discriminator = data.getDiscriminator();
-        if (discriminator.equals(Discriminators.Uri.ERROR)) {
+        if (discriminator.equals(Uri.ERROR)) {
             // Return the input unchanged.
             return input;
         }
 
-        // Step #3: Extract the text.
+        // Step #3: Extract the token.
         Container container = null;
-        if (discriminator.equals(Discriminators.Uri.TEXT)) {
+        if (discriminator.equals(Uri.TEXT)) {
             container = new Container();
             container.setText(data.getPayload().toString());
-        } else if (discriminator.equals(Discriminators.Uri.LAPPS)) {
+        } else if (discriminator.equals(Uri.LAPPS)) {
             container = new Container((Map) data.getPayload());
         } else {
             // This is a format we don't accept.
             String message = String.format("Unsupported discriminator type: %s", discriminator);
-            return new Data<String>(Discriminators.Uri.ERROR, message).asJson();
+            return new Data<String>(Uri.ERROR, message).asJson();
+        }
+
+        List<View> views = container.findViewsThatContain(Uri.TOKEN);
+        if (views == null || views.size() == 0) {
+            return new Data<String>(Uri.ERROR, "Unable to process input: no tokens found").asJson();
+        }
+        View tokenStep = views.get(0);
+        List<Annotation> annotations = tokenStep.getAnnotations();
+
+        String text = container.getText();
+        if (text == null || text.isEmpty()) {
+            return input;
         }
 
         // Step #4: Create a new View
         View view = container.newView();
 
         // Step #5: Chuck the text and add annotations.
-        String text = container.getText();
-
-        if (text == null || text.isEmpty()) {
-            return input;
+        ArrayList<String> tokens = new ArrayList<>();
+        for (Annotation annotation : annotations) {
+            String token = text.substring(annotation.getStart().intValue(), annotation.getEnd().intValue());
+            tokens.add(token);
         }
-
-        Chunking chunking = chunker.chunk(text);
-        int i = 1;
-        for (Chunk chunk : chunking.chunkSet()) {
-            Annotation a = view.newAnnotation("lingpipe-chuck-" + i, Discriminators.Uri.NE, chunk.start(), chunk.end());
-            a.addFeature(Features.Token.WORD, text.substring(chunk.start(), chunk.end()));
-            a.addFeature(Features.Token.TYPE, chunk.type());
-            a.addFeature("score", String.valueOf(chunk.score()));
+        Tagging<String> tagging = decoder.tag(tokens);
+        if (tagging.size() != annotations.size()) {
+            return new Data<String>(Uri.ERROR, "Tagger error: input/output sizes are different.").asJson();
+        } else {
+            Iterator<Annotation> annoIter = annotations.iterator();
+            Iterator<String> tagIter = tagging.tags().iterator();
+            while (annoIter.hasNext() && tagIter.hasNext()) {
+                Annotation anno = annoIter.next();
+                anno.addFeature(Features.Token.PART_OF_SPEECH, tagIter.next());
+                view.add(anno);
+            }
         }
 
         // Step #6: Update the view's metadata. Each view contains metadata about the
-        // annotations it contains, in particular the name of the tool that produced the
-        // annotations.
-        view.addContains(Discriminators.Uri.NE, this.getClass().getName(), "ner:lingpipe-en-news-muc-6");
+        // annotations it contains, in particular the name of the tool that produced the annotations.
+        view.addContains(Uri.POS, this.getClass().getName(), "tagger:lingpipe-brown-hmm-tagger");
 
         // Step #7: Create a DataContainer with the result.
         data = new DataContainer(container);
