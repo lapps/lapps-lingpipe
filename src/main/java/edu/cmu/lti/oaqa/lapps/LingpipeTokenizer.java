@@ -17,17 +17,10 @@
 
 package edu.cmu.lti.oaqa.lapps;
 
-import com.aliasi.chunk.Chunk;
-import com.aliasi.chunk.Chunker;
-import com.aliasi.chunk.Chunking;
 import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.Tokenizer;
 import com.aliasi.tokenizer.TokenizerFactory;
-import com.aliasi.util.Streams;
-import org.lappsgrid.api.ProcessingService;
-import org.lappsgrid.discriminator.Discriminators;
 import org.lappsgrid.metadata.IOSpecification;
-import org.lappsgrid.metadata.ServiceMetadata;
 import org.lappsgrid.serialization.Data;
 import org.lappsgrid.serialization.DataContainer;
 import org.lappsgrid.serialization.Serializer;
@@ -36,12 +29,10 @@ import org.lappsgrid.serialization.lif.Container;
 import org.lappsgrid.serialization.lif.View;
 import org.lappsgrid.vocabulary.Features;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.net.URL;
 import java.util.Map;
 
 import static org.lappsgrid.discriminator.Discriminators.Uri;
+import static org.lappsgrid.discriminator.Discriminators.Alias;
 
 public class LingpipeTokenizer extends AbstractLingpipeService {
 
@@ -110,6 +101,7 @@ public class LingpipeTokenizer extends AbstractLingpipeService {
         while ((token = tokenizer.nextToken()) != null) {
             Annotation a = view.newAnnotation("lingpipe-token-" + i, Uri.TOKEN,
                     tokenizer.lastTokenStartPosition(), tokenizer.lastTokenEndPosition());
+            a.setLabel(Alias.TOKEN );
             a.addFeature(Features.Token.WORD, token);
         }
 

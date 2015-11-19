@@ -142,6 +142,8 @@ public class LingpipeTagger extends AbstractLingpipeService {
             Iterator<String> tagIter = tagging.tags().iterator();
             while (annoIter.hasNext() && tagIter.hasNext()) {
                 Annotation anno = annoIter.next();
+                anno.setAtType(Uri.POS);
+                anno.setLabel(Discriminators.Alias.POS);
                 anno.addFeature(Features.Token.PART_OF_SPEECH, tagIter.next());
                 view.add(anno);
             }

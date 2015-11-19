@@ -91,7 +91,7 @@ public class LingpipeTaggerTest {
             fail(String.format("Expected 11 NEs. Found %d", annotations.size()));
         }
         Annotation ne1 = annotations.get(0);
-        assertEquals("Token 1: wrong label", Uri.TOKEN, ne1.getLabel());
+        assertEquals("Token 1: wrong type", Uri.POS, ne1.getAtType());
         assertEquals("Token 1: wrong start", 0L, ne1.getStart().longValue());
         assertEquals("Token 1: wrong word", "np", ne1.getFeature(Features.Token.PART_OF_SPEECH));
 

@@ -22,6 +22,7 @@ import com.aliasi.chunk.Chunker;
 import com.aliasi.chunk.Chunking;
 import com.aliasi.util.Streams;
 import org.lappsgrid.discriminator.Discriminators;
+import static org.lappsgrid.discriminator.Discriminators.Alias;
 import org.lappsgrid.metadata.IOSpecification;
 import org.lappsgrid.metadata.ServiceMetadata;
 import org.lappsgrid.serialization.Data;
@@ -35,6 +36,7 @@ import org.lappsgrid.vocabulary.Features;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.lappsgrid.discriminator.Discriminators.Uri;
@@ -116,8 +118,12 @@ public class LingpipeNER extends AbstractLingpipeService {
         int i = 1;
         for (Chunk chunk : chunking.chunkSet()) {
             Annotation a = view.newAnnotation("lingpipe-chuck-" + i, Discriminators.Uri.NE, chunk.start(), chunk.end());
+            a.setLabel(Alias.NE);
             a.addFeature(Features.Token.WORD, text.substring(chunk.start(), chunk.end()));
-            a.addFeature(Features.Token.TYPE, chunk.type());
+
+            //TODO Features.NamedEntity.CATEGORY should likely be defined as a feature type.
+            a.addFeature(Features.NamedEntity.CATEGORY, chunk.type());
+//            a.addFeature(Features.Token.TYPE, chunk.type());
             a.addFeature("score", String.valueOf(chunk.score()));
         }
 
@@ -133,5 +139,4 @@ public class LingpipeNER extends AbstractLingpipeService {
         return data.asJson();
 
     }
-
 }
