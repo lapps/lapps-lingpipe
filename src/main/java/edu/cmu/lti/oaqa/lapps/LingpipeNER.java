@@ -117,7 +117,8 @@ public class LingpipeNER extends AbstractLingpipeService {
         Chunking chunking = chunker.chunk(text);
         int i = 1;
         for (Chunk chunk : chunking.chunkSet()) {
-            Annotation a = view.newAnnotation("lingpipe-chuck-" + i, Discriminators.Uri.NE, chunk.start(), chunk.end());
+			String type = mapNE(chunk.type());
+            Annotation a = view.newAnnotation("lingpipe-chunk-" + i, type, chunk.start(), chunk.end());
             a.setLabel(Alias.NE);
             a.addFeature(Features.Token.WORD, text.substring(chunk.start(), chunk.end()));
 
@@ -139,4 +140,18 @@ public class LingpipeNER extends AbstractLingpipeService {
         return data.asJson();
 
     }
+
+    private String mapNE(String type) {
+		switch (type) {
+			case "PERSON":
+				return Uri.PERSON;
+			case "LOCATION":
+				return Uri.LOCATION;
+			case "ORGANIZATION":
+				return Uri.ORGANIZATION;
+			case "DATE":
+				return Uri.DATE;
+		}
+		return type;
+	}
 }
