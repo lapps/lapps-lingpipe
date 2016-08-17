@@ -11,7 +11,7 @@
     </parent>
     <groupId>edu.cmu.lti.oaqa.lapps</groupId>
 	<artifactId>lingpipe</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>war</packaging>
 
     <properties>
@@ -71,7 +71,6 @@
 	<build>
 		<finalName>LingpipeServices#${project.version}</finalName>
 		<plugins>
-            <!--
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.0</version>
@@ -80,6 +79,7 @@
 					<target>1.7</target>
 				</configuration>
             </plugin>
+            <!--
             -->
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
