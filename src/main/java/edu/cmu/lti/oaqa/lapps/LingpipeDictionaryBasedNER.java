@@ -126,6 +126,7 @@ public class LingpipeDictionaryBasedNER extends AbstractLingpipeService {
             //a.addFeature(Features.Token.TYPE, chunk.type());
             a.addFeature(Features.NamedEntity.CATEGORY, chunk.type());
             a.addFeature("score", String.valueOf(chunk.score()));
+            i++;
         }
 
         // Step #6: Update the view's metadata. Each view contains metadata about the
