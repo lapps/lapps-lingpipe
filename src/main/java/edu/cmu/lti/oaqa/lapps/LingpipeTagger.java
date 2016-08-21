@@ -117,7 +117,19 @@ public class LingpipeTagger extends AbstractLingpipeService {
         if (views == null || views.size() == 0) {
             return new Data<String>(Uri.ERROR, "Unable to process input: no tokens found").asJson();
         }
-        View tokenStep = views.get(0);
+        // Work around for the Serializer Bug #23. The Serializer creates HashMap objects instead of
+        // view objects when initialized from a Map.
+        Object object = views.get(0);
+        View tokenStep = null;
+        if (object instanceof Map)
+        {
+            tokenStep = new View((Map)object);
+        }
+        else
+        {
+            tokenStep = (View) object;
+        }
+//        View tokenStep = views.get(0);
         List<Annotation> annotations = tokenStep.getAnnotations();
 
         String text = container.getText();
