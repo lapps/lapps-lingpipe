@@ -72,8 +72,8 @@ public class LingpipeDictionaryBasedNER extends AbstractLingpipeService {
         metadata.setProduces(produces);
     }
 
-    @Override
-    public String execute(String input) {
+    //@Override
+    public String current_execute(String input) {
         // Step #1: Parse the input.
         Data data = Serializer.parse(input, Data.class);
 
@@ -140,6 +140,16 @@ public class LingpipeDictionaryBasedNER extends AbstractLingpipeService {
         // Step #8: Serialize the data object and return the JSON.
         return data.asJson();
 
+    }
+
+    @Override
+    public String execute(String json) {
+        try {
+            return current_execute(json);
+        }
+        catch (Exception e) {
+            return (new Data(Uri.ERROR, e.getMessage())).asJson();
+        }
     }
 
     private String mapNE(String type) {
