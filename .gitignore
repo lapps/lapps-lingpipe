@@ -31,4 +31,4 @@ pom.xml.next
 target/
 
 copy_jar.sh
-src/main/resources/models/
+#src/main/resources/models/
