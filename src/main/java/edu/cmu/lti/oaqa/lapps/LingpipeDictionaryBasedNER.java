@@ -111,7 +111,7 @@ public class LingpipeDictionaryBasedNER extends AbstractLingpipeService {
         String[] wordlist = ((String) data.getParameter("dictionary")).split("\\r?\\n");
         for (String entry: wordlist) {
             // example entry: Obama, PERSON
-            String fields[] = entry.trim().split("[,]+");
+            String fields[] = entry.trim().split("[|]+");
             if (fields.length != 2) {
                 return new Data(Uri.ERROR, "Invalid dictionary format").asPrettyJson();
             }
