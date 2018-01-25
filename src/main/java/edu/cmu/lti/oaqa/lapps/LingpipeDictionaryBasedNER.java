@@ -29,11 +29,14 @@ import com.aliasi.dict.ExactDictionaryChunker;
 import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 
 import static org.lappsgrid.discriminator.Discriminators.Alias;
+
+import org.lappsgrid.core.DataFactory;
 import org.lappsgrid.discriminator.Discriminators;
 import org.lappsgrid.metadata.IOSpecification;
 import org.lappsgrid.metadata.ServiceMetadata;
 import org.lappsgrid.serialization.Data;
 import org.lappsgrid.serialization.DataContainer;
+import org.lappsgrid.serialization.LifException;
 import org.lappsgrid.serialization.Serializer;
 import org.lappsgrid.serialization.lif.Annotation;
 import org.lappsgrid.serialization.lif.Container;
@@ -109,9 +112,17 @@ public class LingpipeDictionaryBasedNER extends AbstractLingpipeService {
         }
 
         // Step #4: Create a new View
-        View view = container.newView();
+		View view = null;
+		try
+		{
+			view = container.newView();
+		}
+		catch (LifException e)
+		{
+			return DataFactory.error("Unable to create a new view.", e);
+		}
 
-        // Step #5: Chuck the text and add annotations.
+		// Step #5: Chuck the text and add annotations.
         String text = container.getText();
 
         if (text == null || text.isEmpty()) {
@@ -134,11 +145,9 @@ public class LingpipeDictionaryBasedNER extends AbstractLingpipeService {
         Chunking chunking = chunker.chunk(text);
         int i = 1;
         for (Chunk chunk : chunking.chunkSet()) {
-            String type = mapNE(chunk.type());
-            Annotation a = view.newAnnotation("lingpipe-chunk-" + i, type, chunk.start(), chunk.end());
+            Annotation a = view.newAnnotation("lingpipe-chunk-" + i, Uri.NE, chunk.start(), chunk.end());
             a.setLabel(Alias.NE);
             a.addFeature(Features.Token.WORD, text.substring(chunk.start(), chunk.end()));
-            //a.addFeature(Features.Token.TYPE, chunk.type());
             a.addFeature(Features.NamedEntity.CATEGORY, chunk.type());
             a.addFeature("score", String.valueOf(chunk.score()));
             i++;
@@ -170,17 +179,4 @@ public class LingpipeDictionaryBasedNER extends AbstractLingpipeService {
         }
     }
 
-    private String mapNE(String type) {
-        switch (type) {
-            case "PERSON":
-                return Uri.PERSON;
-            case "LOCATION":
-                return Uri.LOCATION;
-            case "ORGANIZATION":
-                return Uri.ORGANIZATION;
-            case "DATE":
-                return Uri.DATE;
-        }
-        return type;
-    }
 }
