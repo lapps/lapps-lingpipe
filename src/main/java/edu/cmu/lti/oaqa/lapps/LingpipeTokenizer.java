@@ -20,9 +20,11 @@ package edu.cmu.lti.oaqa.lapps;
 import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.Tokenizer;
 import com.aliasi.tokenizer.TokenizerFactory;
+import org.lappsgrid.core.DataFactory;
 import org.lappsgrid.metadata.IOSpecification;
 import org.lappsgrid.serialization.Data;
 import org.lappsgrid.serialization.DataContainer;
+import org.lappsgrid.serialization.LifException;
 import org.lappsgrid.serialization.Serializer;
 import org.lappsgrid.serialization.lif.Annotation;
 import org.lappsgrid.serialization.lif.Container;
@@ -86,7 +88,15 @@ public class LingpipeTokenizer extends AbstractLingpipeService {
         }
 
         // Step #4: Create a new View
-        View view = container.newView();
+        View view = null;
+        try
+        {
+            view = container.newView();
+        }
+        catch (LifException e)
+        {
+            return DataFactory.error("Unable to create a new view.", e);
+        }
 
         // Step #5: Chuck the text and add annotations.
         String text = container.getText();

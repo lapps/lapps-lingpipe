@@ -30,11 +30,13 @@ import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.TokenizerFactory;
 import com.aliasi.util.Streams;
 import org.lappsgrid.api.ProcessingService;
+import org.lappsgrid.core.DataFactory;
 import org.lappsgrid.discriminator.Discriminators;
 import org.lappsgrid.metadata.IOSpecification;
 import org.lappsgrid.metadata.ServiceMetadata;
 import org.lappsgrid.serialization.Data;
 import org.lappsgrid.serialization.DataContainer;
+import org.lappsgrid.serialization.LifException;
 import org.lappsgrid.serialization.Serializer;
 import org.lappsgrid.serialization.lif.Annotation;
 import org.lappsgrid.serialization.lif.Container;
@@ -138,7 +140,15 @@ public class LingpipeTagger extends AbstractLingpipeService {
         }
 
         // Step #4: Create a new View
-        View view = container.newView();
+        View view = null;
+        try
+        {
+            view = container.newView();
+        }
+        catch (LifException e)
+        {
+            return DataFactory.error("Unable to create a new view.", e);
+        }
 
         // Step #5: Chuck the text and add annotations.
         ArrayList<String> tokens = new ArrayList<>();
