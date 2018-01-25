@@ -42,6 +42,8 @@ import org.lappsgrid.vocabulary.Features;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.Map;
 
@@ -90,7 +92,16 @@ public class LingpipeDictionaryBasedNER extends AbstractLingpipeService {
             container = new Container();
             container.setText(data.getPayload().toString());
         } else if (discriminator.equals(Discriminators.Uri.LAPPS)) {
-            container = new Container((Map) data.getPayload());
+            // FIXME Setting the @context is a workaround for a bug in the serialization API.
+            // When that bug is fixed this workaround can be removed.
+            // https://github.com/lapps/org.lappsgrid.serialization/issues/25
+            Map map = (Map) data.getPayload();
+            if (map.get("@context") == null) {
+                map.put("@context", "http://vocab.lappsgrid.org/context-1.0.0.jsonld");
+            }
+            container = new Container(map);
+//            container = new Container((Map)data.getPayload());
+            // END OF WORKAROUND.
         } else {
             // This is a format we don't accept.
             String message = String.format("Unsupported discriminator type: %s", discriminator);
@@ -113,7 +124,8 @@ public class LingpipeDictionaryBasedNER extends AbstractLingpipeService {
             // example entry: Obama, PERSON
             String fields[] = entry.trim().split("[|]+");
             if (fields.length != 2) {
-                return new Data(Uri.ERROR, "Invalid dictionary format").asPrettyJson();
+                String message = String.format("Invalid dictionary format. Found %d fields in %s", fields.length, entry);
+                return new Data(Uri.ERROR, message).asPrettyJson();
             }
             dictionary.addEntry(new DictionaryEntry<String>(fields[0].trim(), fields[1].trim(), CHUNK_SCORE));
         }
@@ -151,7 +163,10 @@ public class LingpipeDictionaryBasedNER extends AbstractLingpipeService {
             return current_execute(json);
         }
         catch (Exception e) {
-            return (new Data(Uri.ERROR, e.getMessage())).asJson();
+            StringWriter swriter = new StringWriter();
+            PrintWriter pwriter = new PrintWriter(swriter);
+            e.printStackTrace(pwriter);
+            return (new Data(Uri.ERROR, swriter.toString())).asJson();
         }
     }
 
