@@ -22,8 +22,14 @@ abstract public class AbstractLingpipeService implements ProcessingService {
 
         // Populate metadata using setX() methods
         metadata.setName(this.getClass().getName());
-        metadata.setVersion("1.0.0-SNAPSHOT");
-        metadata.setVendor("http://www.lappsgrid.org");
+        metadata.setVersion(Version.getVersion());
+        metadata.setVendor("http://lti.cs.cmu.edu");
+
+        //TODO I'm not sure this is the correct way to do this.
+        // The markdown should likely be in a separate field. Doing it this way
+        // loses the discriminator...
+        // NOTE It is not as the metadata fails schema validation.
+//        metadata.setLicense("Lingpipe is released under the `GNU Affero General Public License version 3.0 <https://www.gnu.org/licenses/agpl-3.0.en.html>`_");
         metadata.setLicense(AGPL_LICENCE);
     }
 

@@ -88,12 +88,14 @@ public class LingpipeNERTest {
             fail(String.format("Expected 2 NEs. Found %d", annotations.size()));
         }
         Annotation ne1 = annotations.get(0);
-        assertEquals("Token 1: wrong type", Uri.PERSON, ne1.getAtType());
+        assertEquals("Token 1: wrong type", Uri.NE, ne1.getAtType());
+		assertEquals("Token 1: wrong category", "PERSON", ne1.getFeature(Features.NamedEntity.CATEGORY));
         assertEquals("Token 1: wrong start", 0L, ne1.getStart().longValue());
         assertEquals("Token 1: wrong word", "Barack Obama", ne1.getFeature(Features.Token.WORD));
 
         Annotation ne2 = annotations.get(1);
-//        assertEquals("Token 2: wrong type", Uri.LOCATION, ne1.getAtType());
+        assertEquals("Token 2: wrong type", Uri.NE, ne2.getAtType());
+//		assertEquals("Token 2: wrong category", "LOCATION", ne1.getFeature(Features.NamedEntity.CATEGORY));
         assertEquals("Token 2: wrong end", 55L, ne2.getEnd().longValue());
         assertEquals("Token 2: wrong word", "United States", ne2.getFeature(Features.Token.WORD));
     }

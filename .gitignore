@@ -1,4 +1,6 @@
 *.class
+VERSION
+src/main/java/edu/cmu/lti/oaqa/lapps/Version.java
 
 # Package Files #
 *.jar
