@@ -21,12 +21,14 @@ import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunker;
 import com.aliasi.chunk.Chunking;
 import com.aliasi.util.Streams;
+import org.lappsgrid.core.DataFactory;
 import org.lappsgrid.discriminator.Discriminators;
 import static org.lappsgrid.discriminator.Discriminators.Alias;
 import org.lappsgrid.metadata.IOSpecification;
 import org.lappsgrid.metadata.ServiceMetadata;
 import org.lappsgrid.serialization.Data;
 import org.lappsgrid.serialization.DataContainer;
+import org.lappsgrid.serialization.LifException;
 import org.lappsgrid.serialization.Serializer;
 import org.lappsgrid.serialization.lif.Annotation;
 import org.lappsgrid.serialization.lif.Container;
@@ -104,55 +106,49 @@ public class LingpipeNER extends AbstractLingpipeService {
             return new Data<String>(Discriminators.Uri.ERROR, message).asJson();
         }
 
-        // Step #4: Create a new View
-        View view = container.newView();
-
-        // Step #5: Chuck the text and add annotations.
+        // Step #4: Check the text
         String text = container.getText();
 
         if (text == null || text.isEmpty()) {
             return input;
         }
 
+        // Step #5: Create a new View
+        View view = null;
+        try
+        {
+            view = container.newView();
+        }
+        catch (LifException e)
+        {
+            return DataFactory.error("Unable to create a new view.", e);
+        }
+
+        // Step #6 GO.
         Chunking chunking = chunker.chunk(text);
         int i = 1;
         for (Chunk chunk : chunking.chunkSet()) {
-			String type = mapNE(chunk.type());
-            Annotation a = view.newAnnotation("lingpipe-chunk-" + i, type, chunk.start(), chunk.end());
+            Annotation a = view.newAnnotation("lingpipe-chunk-" + i, Uri.NE, chunk.start(), chunk.end());
             a.setLabel(Alias.NE);
             a.addFeature(Features.Token.WORD, text.substring(chunk.start(), chunk.end()));
 
             //TODO Features.NamedEntity.CATEGORY should likely be defined as a feature type.
             a.addFeature(Features.NamedEntity.CATEGORY, chunk.type());
-//            a.addFeature(Features.Token.TYPE, chunk.type());
             a.addFeature("score", String.valueOf(chunk.score()));
             i++;
         }
 
-        // Step #6: Update the view's metadata. Each view contains metadata about the
+        // Step #7: Update the view's metadata. Each view contains metadata about the
         // annotations it contains, in particular the name of the tool that produced the
         // annotations.
         view.addContains(Discriminators.Uri.NE, this.getClass().getName(), "ner:lingpipe-en-news-muc-6");
 
-        // Step #7: Create a DataContainer with the result.
+        // Step #8: Create a DataContainer with the result.
         data = new DataContainer(container);
 
-        // Step #8: Serialize the data object and return the JSON.
+        // Step #9: Serialize the data object and return the JSON.
         return data.asJson();
 
     }
 
-    private String mapNE(String type) {
-		switch (type) {
-			case "PERSON":
-				return Uri.PERSON;
-			case "LOCATION":
-				return Uri.LOCATION;
-			case "ORGANIZATION":
-				return Uri.ORGANIZATION;
-			case "DATE":
-				return Uri.DATE;
-		}
-		return type;
-	}
 }

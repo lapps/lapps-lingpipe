@@ -26,11 +26,13 @@ import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.Tokenizer;
 import com.aliasi.tokenizer.TokenizerFactory;
 import org.lappsgrid.api.ProcessingService;
+import org.lappsgrid.core.DataFactory;
 import org.lappsgrid.discriminator.Discriminators;
 import org.lappsgrid.metadata.IOSpecification;
 import org.lappsgrid.metadata.ServiceMetadata;
 import org.lappsgrid.serialization.Data;
 import org.lappsgrid.serialization.DataContainer;
+import org.lappsgrid.serialization.LifException;
 import org.lappsgrid.serialization.Serializer;
 import org.lappsgrid.serialization.lif.Annotation;
 import org.lappsgrid.serialization.lif.Container;
@@ -98,27 +100,22 @@ public class LingpipeSentenceSplitter extends AbstractLingpipeService {
             return new Data<String>(Uri.ERROR, message).asJson();
         }
 
-//        List<View> views = container.findViewsThatContain(Uri.TOKEN);
-//        if (views == null || views.size() == 0)
-//        {
-//            return new Data<String>(Uri.ERROR, "Unable to process input: no tokens found").asJson();
-//        }
-//        View tokenStep = views.get(0);
-//        List<Annotation> annotations = tokenStep.getAnnotations();
-
         String text = container.getText();
         if (text == null || text.isEmpty()) {
             return input;
         }
 
         // Step #4: Create a new View
-        View view = container.newView();
+        View view = null;
+        try
+        {
+            view = container.newView();
+        }
+        catch (LifException e)
+        {
+            return DataFactory.error("Unable to create a new view.", e);
+        }
 
-        // Step #5: Chuck the text and add annotations.
-//        for (Annotation annotation : annotations) {
-//            String token
-//                    = text.substring(annotation.getStart().intValue(), (int) annotation.getEnd().intValue());
-//        }
 
         Chunking chunking = SENTENCE_CHUNKER.chunk(text.toCharArray(), 0, text.length());
         Set<Chunk> sentences = chunking.chunkSet();
