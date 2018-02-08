@@ -98,7 +98,7 @@ public class LingpipeNER extends AbstractLingpipeService {
         if (discriminator.equals(Discriminators.Uri.TEXT)) {
             container = new Container();
             container.setText(data.getPayload().toString());
-        } else if (discriminator.equals(Discriminators.Uri.LAPPS)) {
+        } else if (accept(discriminator)) {
             container = new Container((Map) data.getPayload());
         } else {
             // This is a format we don't accept.

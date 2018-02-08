@@ -1,13 +1,14 @@
 package edu.cmu.lti.oaqa.lapps;
 
 import org.lappsgrid.api.ProcessingService;
-import org.lappsgrid.discriminator.Discriminators;
 import org.lappsgrid.metadata.IOSpecification;
 import org.lappsgrid.metadata.ServiceMetadata;
 import org.lappsgrid.serialization.Data;
+import static  org.lappsgrid.discriminator.Discriminators.*;
 
 /**
  * @author Di Wang.
+ * @author Keith Suderman
  */
 abstract public class AbstractLingpipeService implements ProcessingService {
 
@@ -36,7 +37,11 @@ abstract public class AbstractLingpipeService implements ProcessingService {
     @Override
     public String getMetadata() {
         // Create Data instance and populate it
-        Data<ServiceMetadata> data = new Data<>(Discriminators.Uri.META, this.metadata);
+        Data<ServiceMetadata> data = new Data<>(Uri.META, this.metadata);
         return data.asJson();
     }
+
+    public boolean accept(String discriminator) {
+    	return Uri.LIF.equals(discriminator); // || Uri.LAPPS.equals(discriminator);
+	}
 }

@@ -92,7 +92,7 @@ public class LingpipeSentenceSplitter extends AbstractLingpipeService {
         if (discriminator.equals(Uri.TEXT)) {
             container = new Container();
             container.setText(data.getPayload().toString());
-        } else if (discriminator.equals(Uri.LAPPS)) {
+        } else if (accept(discriminator)) {
             container = new Container((Map) data.getPayload());
         } else {
             // This is a format we don't accept.

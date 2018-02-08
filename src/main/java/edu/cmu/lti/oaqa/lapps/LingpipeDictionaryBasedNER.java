@@ -94,7 +94,7 @@ public class LingpipeDictionaryBasedNER extends AbstractLingpipeService {
         if (discriminator.equals(Discriminators.Uri.TEXT)) {
             container = new Container();
             container.setText(data.getPayload().toString());
-        } else if (discriminator.equals(Discriminators.Uri.LAPPS)) {
+        } else if (accept(discriminator)) {
             // FIXME Setting the @context is a workaround for a bug in the serialization API.
             // When that bug is fixed this workaround can be removed.
             // https://github.com/lapps/org.lappsgrid.serialization/issues/25
