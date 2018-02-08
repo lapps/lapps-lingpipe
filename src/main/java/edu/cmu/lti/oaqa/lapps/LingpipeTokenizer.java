@@ -118,10 +118,11 @@ public class LingpipeTokenizer extends AbstractLingpipeService {
         // Step #6: Update the view's metadata. Each view contains metadata about the
         // annotations it contains, in particular the name of the tool that produced the
         // annotations.
-        view.addContains(Uri.TOKEN, this.getClass().getName(), "tokenizer:lingpipe-indo-european-tokenizer");
+        view.addContains(Uri.TOKEN, this.getClass().getName(), "token:lingpipe:indo-european-tokenizer");
 
         // Step #7: Create a DataContainer with the result.
-        data = new DataContainer(container);
+        //data = new DataContainer(container);
+        data = new Data<Container>(Uri.LIF, container);
 
         // Step #8: Serialize the data object and return the JSON.
         return data.asJson();

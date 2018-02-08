@@ -131,7 +131,7 @@ public class LingpipeSentenceSplitter extends AbstractLingpipeService {
         // Step #6: Update the view's metadata. Each view contains metadata about the
         // annotations it contains, in particular the name of the tool that produced the
         // annotations.
-        view.addContains(Uri.SENTENCE, this.getClass().getName(), "tokenizer:lingpipe-indo-european-tokenizer");
+        view.addContains(Uri.SENTENCE, this.getClass().getName(), "sentence:lingpipe");
 
         // Step #7: Create a DataContainer with the result.
         data = new DataContainer(container);

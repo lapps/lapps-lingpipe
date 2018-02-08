@@ -111,6 +111,7 @@ public class LingpipeTaggerTest {
 
     protected Container execute(Data data) {
         String json = service.execute(tokenizer.execute(data.asJson()));
+        System.out.println(json);
         assertNotNull("Service returned null", json);
         DataContainer dc = Serializer.parse(json, DataContainer.class);
         assertEquals("Returned format is not LIF", Uri.LAPPS, dc.getDiscriminator());

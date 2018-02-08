@@ -77,7 +77,7 @@ public class LingpipeTokenizerTest {
         Container container = execute(text);
         assertEquals("Text not set correctly", text, container.getText());
 
-        // Now, see all annotations in current view is correct
+        // Now, see all annotations in current view are correct
         List<View> views = container.getViews();
         if (views.size() != 1) {
             fail(String.format("Expected 1 view. Found: %d", views.size()));
@@ -112,7 +112,7 @@ public class LingpipeTokenizerTest {
         String json = service.execute(data.asJson());
         assertNotNull("Service returned null", json);
         DataContainer dc = Serializer.parse(json, DataContainer.class);
-        assertEquals("Returned format is not LIF", Uri.LAPPS, dc.getDiscriminator());
+        assertEquals("Returned format is not LIF", Uri.LIF, dc.getDiscriminator());
         return dc.getPayload();
     }
 }

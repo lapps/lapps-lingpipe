@@ -173,7 +173,7 @@ public class LingpipeTagger extends AbstractLingpipeService {
 
         // Step #6: Update the view's metadata. Each view contains metadata about the
         // annotations it contains, in particular the name of the tool that produced the annotations.
-        view.addContains(Uri.POS, this.getClass().getName(), "tagger:lingpipe-brown-hmm-tagger");
+        view.addContains(Uri.POS, this.getClass().getName(), "tagger:lingpipe:brown-hmm-tagger");
 
         // Step #7: Create a DataContainer with the result.
         data = new DataContainer(container);

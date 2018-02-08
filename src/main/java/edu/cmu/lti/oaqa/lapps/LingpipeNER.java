@@ -141,7 +141,7 @@ public class LingpipeNER extends AbstractLingpipeService {
         // Step #7: Update the view's metadata. Each view contains metadata about the
         // annotations it contains, in particular the name of the tool that produced the
         // annotations.
-        view.addContains(Discriminators.Uri.NE, this.getClass().getName(), "ner:lingpipe-en-news-muc-6");
+        view.addContains(Discriminators.Uri.NE, this.getClass().getName(), "ner:lingpipe:en-news-muc-6");
 
         // Step #8: Create a DataContainer with the result.
         data = new DataContainer(container);
