@@ -54,20 +54,9 @@ public class LingpipeNER extends AbstractLingpipeService {
 
          metadata.setDescription("Lingpipe Named Entity Recognizer with model \"English News: MUC-6\"");
 
-        // JSON for input information
-        IOSpecification requires = new IOSpecification();
-        requires.addFormats(Uri.TEXT, Uri.LAPPS);
-        requires.addLanguage("en");             // Source language
-
         // JSON for output information
-        IOSpecification produces = new IOSpecification();
-        produces.addFormat(Uri.LAPPS);          // LIF (form)
+        IOSpecification produces = metadata.getProduces();
         produces.addAnnotation(Uri.NE);         // Named Entity
-        requires.addLanguage("en");             // Target language
-
-        // Embed I/O metadata JSON objects
-        metadata.setRequires(requires);
-        metadata.setProduces(produces);
     }
 
     protected void loadChucker() throws IOException, ClassNotFoundException {

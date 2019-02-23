@@ -55,21 +55,14 @@ public class LingpipeTagger extends AbstractLingpipeService {
 
         metadata.setDescription("Lingpipe Brown-HMM pos tagger");
         // JSON for input information
-        IOSpecification requires = new IOSpecification();
-        requires.addFormats(Uri.TEXT, Uri.LIF);
-        requires.addLanguage("en");             // Source language
+        IOSpecification requires = metadata.getRequires();
         requires.addAnnotation(Uri.TOKEN);
 
         // JSON for output information
-        IOSpecification produces = new IOSpecification();
-        produces.addFormat(Uri.LIF);          // LIF (form)
+        IOSpecification produces = metadata.getProduces();
         produces.addAnnotation(Uri.POS);
-        produces.addLanguage("en");             // Target language
         produces.addTagSet(Uri.POS, Uri.TAGS_POS_BROWN);
 
-        // Embed I/O metadata JSON objects
-        metadata.setRequires(requires);
-        metadata.setProduces(produces);
     }
 
     protected void loadTagger() throws IOException, ClassNotFoundException {

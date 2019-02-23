@@ -26,6 +26,14 @@ abstract public class AbstractLingpipeService implements ProcessingService {
         metadata.setVersion(Version.getVersion());
         metadata.setVendor("http://lti.cs.cmu.edu");
 
+        IOSpecification io = metadata.getRequires();
+        io.addFormats(Uri.TEXT, Uri.LIF, Uri.LAPPS);
+        io.addLanguage("en");
+
+        io = metadata.getProduces();
+        io.addFormat(Uri.LIF);
+        io.addLanguage("en");
+
         //TODO I'm not sure this is the correct way to do this.
         // The markdown should likely be in a separate field. Doing it this way
         // loses the discriminator...

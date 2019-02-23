@@ -61,20 +61,9 @@ public class LingpipeDictionaryBasedNER extends AbstractLingpipeService {
 
          metadata.setDescription("Exact Dictionary-based Lingpipe Named Entity Recognizer");
 
-        // JSON for input information
-        IOSpecification requires = new IOSpecification();
-        requires.addFormats(Uri.TEXT, Uri.LAPPS);
-        requires.addLanguage("en");             // Source language
-
         // JSON for output information
-        IOSpecification produces = new IOSpecification();
-        produces.addFormat(Uri.LAPPS);          // LIF (form)
+        IOSpecification produces = metadata.getProduces();
         produces.addAnnotation(Uri.NE);         // Named Entity
-        requires.addLanguage("en");             // Target language
-
-        // Embed I/O metadata JSON objects
-        metadata.setRequires(requires);
-        metadata.setProduces(produces);
     }
 
     //@Override

@@ -58,21 +58,9 @@ public class LingpipeSentenceSplitter extends AbstractLingpipeService {
 
         metadata.setDescription("Lingpipe IndoEuropean Tokenizer");
 
-        // JSON for input information
-        IOSpecification requires = new IOSpecification();
-        requires.addFormats(Uri.TEXT, Uri.LAPPS);
-        requires.addLanguage("en");             // Source language
-        //requires.addAnnotation(Uri.TOKEN);
-
         // JSON for output information
-        IOSpecification produces = new IOSpecification();
-        produces.addFormat(Uri.LAPPS);          // LIF (form)
+        IOSpecification produces = metadata.getProduces();
         produces.addAnnotation(Uri.SENTENCE);
-        requires.addLanguage("en");             // Target language
-
-        // Embed I/O metadata JSON objects
-        metadata.setRequires(requires);
-        metadata.setProduces(produces);
     }
 
     @Override
