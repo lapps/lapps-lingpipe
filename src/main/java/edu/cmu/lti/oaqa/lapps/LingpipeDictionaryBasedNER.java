@@ -113,14 +113,7 @@ public class LingpipeDictionaryBasedNER extends AbstractLingpipeService {
 
         // Step #4: Create a new View
 		View view = null;
-		try
-		{
-			view = container.newView();
-		}
-		catch (LifException e)
-		{
-			return DataFactory.error("Unable to create a new view.", e);
-		}
+        view = container.newView();
 
 		// Step #5: Chuck the text and add annotations.
         String text = container.getText();
@@ -130,7 +123,8 @@ public class LingpipeDictionaryBasedNER extends AbstractLingpipeService {
         }
 
         MapDictionary<String> dictionary = new MapDictionary<String>();
-        String[] wordlist = ((String) data.getParameter("dictionary")).split("\\r?\\n");
+        String param = (String) data.getParameter("dictionary");
+        String[] wordlist = param.split("\\r?\\n");
         for (String entry: wordlist) {
             // example entry: Obama, PERSON
             String fields[] = entry.trim().split("[|]+");

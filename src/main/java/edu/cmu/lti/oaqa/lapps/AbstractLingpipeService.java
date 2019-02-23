@@ -15,7 +15,7 @@ abstract public class AbstractLingpipeService implements ProcessingService {
     //TODO: add to vocab
     protected static final String AGPL_LICENCE = "http://vocab.lappsgrid.org/ns/license#agpl-3.0";
 
-    ServiceMetadata metadata;
+    protected ServiceMetadata metadata;
 
     public AbstractLingpipeService() {
         // Create a metadata object

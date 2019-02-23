@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.lappsgrid.maven</groupId>
         <artifactId>war-parent-pom</artifactId>
-        <version>2.1.0</version>
+        <version>2.2.1-SNAPSHOT</version>
     </parent>
     <groupId>edu.cmu.lti.oaqa.lapps</groupId>
 	<artifactId>lingpipe</artifactId>
@@ -15,30 +15,52 @@
     <packaging>war</packaging>
 
     <properties>
-        <java.version>1.7</java.version>
+        <java.version>1.8</java.version>
     </properties>
-
-    <!--
-    <repositories>
-        <repository>
-            <id>anc-nexus</id>
-            <url>http://www.anc.org:8080/nexus/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-    -->
-
     <dependencies>
         <dependency>
             <groupId>org.lappsgrid</groupId>
             <artifactId>all</artifactId>
-            <version>2.4.0</version>
+            <version>2.5.0-SNAPSHOT</version>
+            <type>pom</type>
         </dependency>
+        <!--
+        <dependency>
+            <groupId>org.lappsgrid</groupId>
+            <artifactId>api</artifactId>
+            <version>${lapps.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lappsgrid</groupId>
+            <artifactId>discriminator</artifactId>
+            <version>${lapps.discriminator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lappsgrid</groupId>
+            <artifactId>serialization</artifactId>
+            <version>${lapps.serialization.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lappsgrid</groupId>
+            <artifactId>core</artifactId>
+            <version>${lapps.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lappsgrid</groupId>
+            <artifactId>metadata</artifactId>
+            <version>${lapps.metadata.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lappsgrid</groupId>
+            <artifactId>vocabulary</artifactId>
+            <version>${lapps.vocabulary.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lappsgrid</groupId>
+            <artifactId>client</artifactId>
+            <version>${lapps.client.version}</version>
+        </dependency>
+        -->
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-client</artifactId>

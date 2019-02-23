@@ -115,14 +115,7 @@ public class LingpipeNER extends AbstractLingpipeService {
 
         // Step #5: Create a new View
         View view = null;
-        try
-        {
-            view = container.newView();
-        }
-        catch (LifException e)
-        {
-            return DataFactory.error("Unable to create a new view.", e);
-        }
+        view = container.newView();
 
         // Step #6 GO.
         Chunking chunking = chunker.chunk(text);

@@ -17,23 +17,13 @@
 
 package edu.cmu.lti.oaqa.lapps;
 
-import com.aliasi.chunk.Chunk;
-import com.aliasi.chunk.Chunker;
-import com.aliasi.chunk.Chunking;
 import com.aliasi.hmm.HiddenMarkovModel;
 import com.aliasi.hmm.HmmDecoder;
-import com.aliasi.sentences.IndoEuropeanSentenceModel;
-import com.aliasi.sentences.SentenceChunker;
-import com.aliasi.sentences.SentenceModel;
 import com.aliasi.tag.Tagging;
-import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
-import com.aliasi.tokenizer.TokenizerFactory;
 import com.aliasi.util.Streams;
-import org.lappsgrid.api.ProcessingService;
 import org.lappsgrid.core.DataFactory;
 import org.lappsgrid.discriminator.Discriminators;
 import org.lappsgrid.metadata.IOSpecification;
-import org.lappsgrid.metadata.ServiceMetadata;
 import org.lappsgrid.serialization.Data;
 import org.lappsgrid.serialization.DataContainer;
 import org.lappsgrid.serialization.LifException;
@@ -46,7 +36,10 @@ import org.lappsgrid.vocabulary.Features;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static org.lappsgrid.discriminator.Discriminators.Uri;
 
@@ -60,18 +53,19 @@ public class LingpipeTagger extends AbstractLingpipeService {
         //load the model
         loadTagger();
 
-        metadata.setDescription("Lingpipe Brown-HMM pos targger");
+        metadata.setDescription("Lingpipe Brown-HMM pos tagger");
         // JSON for input information
         IOSpecification requires = new IOSpecification();
-        requires.addFormats(Uri.TEXT, Uri.LAPPS);
+        requires.addFormats(Uri.TEXT, Uri.LIF);
         requires.addLanguage("en");             // Source language
         requires.addAnnotation(Uri.TOKEN);
 
         // JSON for output information
         IOSpecification produces = new IOSpecification();
-        produces.addFormat(Uri.LAPPS);          // LIF (form)
+        produces.addFormat(Uri.LIF);          // LIF (form)
         produces.addAnnotation(Uri.POS);
-        requires.addLanguage("en");             // Target language
+        produces.addLanguage("en");             // Target language
+        produces.addTagSet(Uri.POS, Uri.TAGS_POS_BROWN);
 
         // Embed I/O metadata JSON objects
         metadata.setRequires(requires);
@@ -141,14 +135,7 @@ public class LingpipeTagger extends AbstractLingpipeService {
 
         // Step #4: Create a new View
         View view = null;
-        try
-        {
-            view = container.newView();
-        }
-        catch (LifException e)
-        {
-            return DataFactory.error("Unable to create a new view.", e);
-        }
+        view = container.newView();
 
         // Step #5: Chuck the text and add annotations.
         ArrayList<String> tokens = new ArrayList<>();

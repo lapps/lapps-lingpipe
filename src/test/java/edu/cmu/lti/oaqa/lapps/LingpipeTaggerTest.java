@@ -15,9 +15,13 @@ import org.lappsgrid.serialization.lif.View;
 import org.lappsgrid.vocabulary.Features;
 import edu.cmu.lti.oaqa.lapps.AbstractLingpipeService;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 import static org.lappsgrid.discriminator.Discriminators.Uri;
@@ -27,24 +31,24 @@ import static org.lappsgrid.discriminator.Discriminators.Uri;
  */
 public class LingpipeTaggerTest {
 
-    protected WebService service;
+    protected WebService tagger;
     private LingpipeTokenizer tokenizer;
 
     @Before
     public void setUp() throws IOException, ClassNotFoundException {
         tokenizer = new LingpipeTokenizer();
-        service = new LingpipeTagger();
+        tagger = new LingpipeTagger();
     }
 
     @After
     public void tearDown() {
-        service = null;
+        tagger = null;
     }
 
     @Test
     public void testGetMetadata() throws Exception {
         // Retrieve metadata, remember `getMetadata()` returns a serialized JSON string
-        String json = service.getMetadata();
+        String json = tagger.getMetadata();
         assertNotNull("service.getMetadata() returned null", json);
 
         // Instantiate `Data` object with returned JSON string
@@ -100,6 +104,19 @@ public class LingpipeTaggerTest {
         assertEquals("Token 2: wrong word", "nns", ne2.getFeature(Features.Token.PART_OF_SPEECH));
     }
 
+    @Test
+    public void testInceptionData() throws IOException {
+        InputStream stream = this.getClass().getResourceAsStream("/inception-data.lif");
+        assertNotNull(stream);
+
+        String input;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+            input = reader.lines().collect(Collectors.joining());
+        }
+        input = tokenizer.execute(input);
+        input = tagger.execute(input);
+        System.out.println(input);
+    }
 
     protected Container execute(String input) {
         return execute(new Data<>(Uri.TEXT, input));
@@ -110,7 +127,7 @@ public class LingpipeTaggerTest {
     }
 
     protected Container execute(Data data) {
-        String json = service.execute(tokenizer.execute(data.asJson()));
+        String json = tagger.execute(tokenizer.execute(data.asJson()));
         System.out.println(json);
         assertNotNull("Service returned null", json);
         DataContainer dc = Serializer.parse(json, DataContainer.class);

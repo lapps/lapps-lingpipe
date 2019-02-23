@@ -107,14 +107,7 @@ public class LingpipeSentenceSplitter extends AbstractLingpipeService {
 
         // Step #4: Create a new View
         View view = null;
-        try
-        {
-            view = container.newView();
-        }
-        catch (LifException e)
-        {
-            return DataFactory.error("Unable to create a new view.", e);
-        }
+        view = container.newView();
 
 
         Chunking chunking = SENTENCE_CHUNKER.chunk(text.toCharArray(), 0, text.length());
