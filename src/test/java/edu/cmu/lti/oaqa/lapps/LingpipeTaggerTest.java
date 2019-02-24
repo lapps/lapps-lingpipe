@@ -66,8 +66,9 @@ public class LingpipeTaggerTest {
 
 
         List<String> list = requires.getFormat();
-        assertEquals("Too many formats accepted", 2, list.size());
+        assertEquals("Too many formats accepted", 3, list.size());
         assertTrue("Text not accepted", list.contains(Uri.TEXT));
+        assertTrue("LIF not accepted", list.contains(Uri.LIF));
 
         assertEquals("Too many annotation types produced", 1, produces.getAnnotations().size());
         assertEquals("Tokens not produced", Uri.POS, produces.getAnnotations().get(0));
@@ -102,6 +103,8 @@ public class LingpipeTaggerTest {
         Annotation ne2 = annotations.get(9);
         assertEquals("Token 2: wrong end", 55L, ne2.getEnd().longValue());
         assertEquals("Token 2: wrong word", "nns", ne2.getFeature(Features.Token.PART_OF_SPEECH));
+
+        System.out.println(Serializer.toPrettyJson(container));
     }
 
     @Test
@@ -131,7 +134,7 @@ public class LingpipeTaggerTest {
         System.out.println(json);
         assertNotNull("Service returned null", json);
         DataContainer dc = Serializer.parse(json, DataContainer.class);
-        assertEquals("Returned format is not LIF", Uri.LAPPS, dc.getDiscriminator());
+        assertEquals("Returned format is not LIF", Uri.LIF, dc.getDiscriminator());
         return dc.getPayload();
     }
 }

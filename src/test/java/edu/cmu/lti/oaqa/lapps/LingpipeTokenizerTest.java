@@ -60,8 +60,9 @@ public class LingpipeTokenizerTest {
 
 
         List<String> list = requires.getFormat();
-        assertEquals("Too many formats accepted", 2, list.size());
+        assertEquals("Too many formats accepted", 3, list.size());
         assertTrue("Text not accepted", list.contains(Uri.TEXT));
+        assertTrue("LIF not accepted", list.contains(Uri.LIF));
 
         assertEquals("Too many annotation types produced", 1, produces.getAnnotations().size());
         assertEquals("Tokens not produced", Uri.TOKEN, produces.getAnnotations().get(0));

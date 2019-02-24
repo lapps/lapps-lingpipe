@@ -21,10 +21,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.lappsgrid.api.WebService;
 import org.lappsgrid.serialization.Data;
+import org.lappsgrid.serialization.DataContainer;
 import org.lappsgrid.serialization.Serializer;
 
 import java.io.IOException;
 
+import static org.junit.Assert.*;
 import static org.lappsgrid.discriminator.Discriminators.*;
 
 /**
@@ -54,7 +56,10 @@ public class LingpipeDictionaryNERTest
 		data.setParameter("dictionary", dictionary);
 
 		String json = service.execute(data.asJson());
-		System.out.println(Serializer.parse(json).asPrettyJson());
+		DataContainer dc = Serializer.parse(json, DataContainer.class);
+		String actual = dc.getDiscriminator();
+		assertEquals("Expected LIF. Found: " + actual, Uri.LIF, actual);
+//		System.out.println(Serializer.parse(json).asPrettyJson());
 
 	}
 }
