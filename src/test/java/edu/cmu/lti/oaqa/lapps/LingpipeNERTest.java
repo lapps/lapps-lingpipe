@@ -59,7 +59,7 @@ public class LingpipeNERTest {
 
 
         List<String> list = requires.getFormat();
-        assertEquals("Too many formats accepted", 3, list.size());
+        assertEquals("Wrong number of formats accepted", 3, list.size());
         assertTrue("Text not accepted", list.contains(Uri.TEXT));
         assertTrue("LIF not accepted", list.contains(Uri.LIF));
 

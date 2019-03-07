@@ -64,6 +64,7 @@ public class LingpipeDictionaryBasedNER extends AbstractLingpipeService {
         // JSON for output information
         IOSpecification produces = metadata.getProduces();
         produces.addAnnotation(Uri.NE);         // Named Entity
+        produces.addTagSet(Uri.NE, Uri.TAGS_NER + "#lingpipe");
     }
 
     //@Override

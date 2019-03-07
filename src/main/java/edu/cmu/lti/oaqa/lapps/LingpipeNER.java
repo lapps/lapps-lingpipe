@@ -57,6 +57,7 @@ public class LingpipeNER extends AbstractLingpipeService {
         // JSON for output information
         IOSpecification produces = metadata.getProduces();
         produces.addAnnotation(Uri.NE);         // Named Entity
+		produces.addTagSet(Uri.NE, Uri.TAGS_NER + "#lingpipe");
     }
 
     protected void loadChucker() throws IOException, ClassNotFoundException {
